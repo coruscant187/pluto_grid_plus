@@ -149,6 +149,9 @@ class PlutoColumn {
   bool enableRowChecked;
 
   /// Sort rows by tapping on the column heading.
+  ///
+  /// Display the right icon for sorting the column if [enableSorting] is enabled
+  /// and [enableContextMenu] is disabled.
   bool enableSorting;
 
   /// Displays the right icon of the column title.
@@ -170,6 +173,9 @@ class PlutoColumn {
   ///
   /// If [enableContextMenu] is enabled, the contextMenu icon appears.
   /// In this case, dragging the context menu icon adjusts the column width.
+  ///
+  /// If [enableSorting] is enabled, the columnSortIcon icon appears.
+  /// In this case, dragging the column sort icon icon adjusts the column width.
   bool enableDropToResize;
 
   /// Displays filter-related menus in the column context menu.

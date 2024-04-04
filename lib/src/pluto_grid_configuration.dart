@@ -239,6 +239,7 @@ class PlutoGridStyleConfig {
       fontSize: 14,
     ),
     this.columnContextIcon = Icons.dehaze,
+    this.columnSortIcon = Icons.swap_vert,
     this.columnResizeIcon = Icons.code_sharp,
     this.columnAscendingIcon,
     this.columnDescendingIcon,
@@ -310,6 +311,7 @@ class PlutoGridStyleConfig {
       fontSize: 14,
     ),
     this.columnContextIcon = Icons.dehaze,
+    this.columnSortIcon = Icons.swap_vert,
     this.columnResizeIcon = Icons.code_sharp,
     this.columnAscendingIcon,
     this.columnDescendingIcon,
@@ -465,20 +467,44 @@ class PlutoGridStyleConfig {
 
   /// Icon that can open a pop-up menu next to the column title
   /// when [enableContextMenu] of [PlutoColumn] is true.
+  ///
+  /// Hierarchy:
+  /// columnContextIcon > columnAscendingIcon/columnDescendingIcon > columnSortIcon > columnResizeIcon
   final IconData columnContextIcon;
 
-  /// If enableContextMenu of PlutoColumn is false and enableDropToResize is true,
-  /// only the width of the column can be adjusted.
+  /// If enableContextMenu of PlutoColumn is false and enableSorting is true,
+  /// and no sorting is applied to the column,
+  /// this icon is shown.
+  ///
+  /// The column can be sorted and may be adjusted in width.
+  ///
+  /// Hierarchy:
+  /// columnContextIcon > columnAscendingIcon/columnDescendingIcon > columnSortIcon > columnResizeIcon
+  final IconData columnSortIcon;
+
+  /// If enableContextMenu of PlutoColumn is false and enableSorting is false
+  /// and enableDropToResize is true, this icon is shown.
+  ///
+  /// Only the width of the column can be adjusted.
+  ///
+  /// Hierarchy:
+  /// columnContextIcon > columnAscendingIcon/columnDescendingIcon > columnSortIcon > columnResizeIcon
   final IconData columnResizeIcon;
 
   /// Ascending icon when sorting a column.
   ///
   /// If no value is specified, the default icon is set.
+  ///
+  /// Hierarchy:
+  /// columnContextIcon > columnAscendingIcon/columnDescendingIcon > columnSortIcon > columnResizeIcon
   final Icon? columnAscendingIcon;
 
   /// Descending icon when sorting a column.
   ///
   /// If no value is specified, the default icon is set.
+  ///
+  /// Hierarchy:
+  /// columnContextIcon > columnAscendingIcon/columnDescendingIcon > columnSortIcon > columnResizeIcon
   final Icon? columnDescendingIcon;
 
   /// Icon when RowGroup is expanded.
@@ -547,6 +573,7 @@ class PlutoGridStyleConfig {
     Color? cellActiveColor,
     TextStyle? cellTextStyle,
     IconData? columnContextIcon,
+    IconData? columnSortIcon,
     IconData? columnResizeIcon,
     PlutoOptional<Icon?>? columnAscendingIcon,
     PlutoOptional<Icon?>? columnDescendingIcon,
@@ -611,6 +638,7 @@ class PlutoGridStyleConfig {
         cellActiveColor: cellActiveColor ?? this.cellActiveColor,
         cellTextStyle: cellTextStyle ?? this.cellTextStyle,
         columnContextIcon: columnContextIcon ?? this.columnContextIcon,
+        columnSortIcon: columnSortIcon ?? this.columnSortIcon,
         columnResizeIcon: columnResizeIcon ?? this.columnResizeIcon,
         columnAscendingIcon: columnAscendingIcon == null
             ? this.columnAscendingIcon
@@ -675,6 +703,7 @@ class PlutoGridStyleConfig {
             cellActiveColor == other.cellActiveColor &&
             cellTextStyle == other.cellTextStyle &&
             columnContextIcon == other.columnContextIcon &&
+            columnSortIcon == other.columnSortIcon &&
             columnResizeIcon == other.columnResizeIcon &&
             columnAscendingIcon == other.columnAscendingIcon &&
             columnDescendingIcon == other.columnDescendingIcon &&
@@ -727,6 +756,7 @@ class PlutoGridStyleConfig {
         cellActiveColor,
         cellTextStyle,
         columnContextIcon,
+        columnSortIcon,
         columnResizeIcon,
         columnAscendingIcon,
         columnDescendingIcon,
