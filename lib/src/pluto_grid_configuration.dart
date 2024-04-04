@@ -254,6 +254,7 @@ class PlutoGridStyleConfig {
     this.rowGroupEmptyIcon = Icons.noise_control_off,
     this.gridBorderRadius = BorderRadius.zero,
     this.gridPopupBorderRadius = BorderRadius.zero,
+    this.rowBorderRadius = BorderRadius.zero,
     this.gridPadding = PlutoGridSettings.gridPadding,
     this.gridBorderWidth = PlutoGridSettings.gridBorderWidth,
     this.filterHeaderColor,
@@ -328,6 +329,7 @@ class PlutoGridStyleConfig {
     this.rowGroupEmptyIcon = Icons.noise_control_off,
     this.gridBorderRadius = BorderRadius.zero,
     this.gridPopupBorderRadius = BorderRadius.zero,
+    this.rowBorderRadius = BorderRadius.zero,
     this.gridPadding = PlutoGridSettings.gridPadding,
     this.gridBorderWidth = PlutoGridSettings.gridBorderWidth,
     this.filterHeaderColor,
@@ -537,6 +539,9 @@ class PlutoGridStyleConfig {
   /// Apply border radius to popup opened inside [PlutoGrid].
   final BorderRadiusGeometry gridPopupBorderRadius;
 
+  /// Apply border radius to row.
+  final BorderRadiusGeometry rowBorderRadius;
+
   /// Defaults to [PlutoGridSettings.gridPadding]
   final double gridPadding;
 
@@ -597,6 +602,7 @@ class PlutoGridStyleConfig {
     IconData? rowGroupEmptyIcon,
     BorderRadiusGeometry? gridBorderRadius,
     BorderRadiusGeometry? gridPopupBorderRadius,
+    BorderRadiusGeometry? rowBorderRadius,
     double? gridPadding,
     double? gridBorderWidth,
   }) {
@@ -668,6 +674,7 @@ class PlutoGridStyleConfig {
         gridBorderRadius: gridBorderRadius ?? this.gridBorderRadius,
         gridPopupBorderRadius:
             gridPopupBorderRadius ?? this.gridPopupBorderRadius,
+        rowBorderRadius: rowBorderRadius ?? this.rowBorderRadius,
         gridPadding: gridPadding ?? this.gridPadding,
         gridBorderWidth: gridBorderWidth ?? this.gridBorderWidth,
         filterHeaderColor: filterHeaderColor ?? filterHeaderColor,
@@ -727,6 +734,7 @@ class PlutoGridStyleConfig {
             rowGroupEmptyIcon == other.rowGroupEmptyIcon &&
             gridBorderRadius == other.gridBorderRadius &&
             gridPopupBorderRadius == other.gridPopupBorderRadius &&
+            rowBorderRadius == other.rowBorderRadius &&
             gridPadding == other.gridPadding &&
             gridBorderWidth == other.gridBorderWidth;
   }
@@ -780,6 +788,7 @@ class PlutoGridStyleConfig {
         rowGroupEmptyIcon,
         gridBorderRadius,
         gridPopupBorderRadius,
+        rowBorderRadius,
         gridPadding,
         gridBorderWidth,
       ]);

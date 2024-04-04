@@ -131,14 +131,19 @@ class PlutoBaseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MouseRegion (
-      onEnter: (event) => _handleOnEnter(),
-      onExit: (event) => _handleOnExit(),
+    return ClipRRect(
+      borderRadius: stateManager.style.gridBorderRadius.resolve(
+        stateManager.textDirection,
+      ),
+      child: MouseRegion (
+        onEnter: (event) => _handleOnEnter(),
+        onExit: (event) => _handleOnExit(),
 
-      child: DragTarget<PlutoRow>(
-        onWillAccept: _handleOnWillAccept,
-        onAccept: _handleOnAccept,
-        builder: _dragTargetBuilder,
+        child: DragTarget<PlutoRow>(
+          onWillAccept: _handleOnWillAccept,
+          onAccept: _handleOnAccept,
+          builder: _dragTargetBuilder,
+        ),
       ),
     );
   }
