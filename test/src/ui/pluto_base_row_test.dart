@@ -86,6 +86,7 @@ void main() {
                 row: row,
                 columns: columns,
                 stateManager: stateManager,
+                plutoBaseRowAlignmentType: PlutoBaseRowAlignmentType.leftFrozen,
               ),
             ),
           ),
@@ -95,11 +96,11 @@ void main() {
   }
 
   buildRowWidget(checked: true).test(
-    'row 가 checked 가 true 일 때, rowColor 에 alphaBlend 가 적용 되어야 한다.',
+    'When row is checked, alphaBlend should be applied to rowColor.',
     (tester) async {
       final rowContainerWidget = find
           .byType(DecoratedBox)
-          .first
+          .at(1) // Nested DecoratedBox
           .evaluate()
           .first
           .widget as DecoratedBox;
@@ -115,11 +116,11 @@ void main() {
   );
 
   buildRowWidget(checked: false).test(
-    'row 가 checked 가 false 일 때, rowColor 에 alphaBlend 가 적용 되지 않아야 한다.',
+    'When row is not checked, rowColor should not have alphaBlend applied to it.',
     (tester) async {
       final rowContainerWidget = find
           .byType(DecoratedBox)
-          .first
+          .at(1) // Nested DecoratedBox
           .evaluate()
           .first
           .widget as DecoratedBox;
