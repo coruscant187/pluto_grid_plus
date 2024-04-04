@@ -283,8 +283,8 @@ void main() {
   );
 
   testWidgets(
-    'enableContextMenu 이 false, enableDropToResize 가 true 면 '
-    'ColumnIcon 이 출력 되어야 한다.',
+    'If enableContextMenu is false, enableSorting is false '
+        'and enableDropToResize is true, then ColumnIcon should be output.',
     (WidgetTester tester) async {
       // given
       final PlutoColumn column = PlutoColumn(
@@ -292,6 +292,7 @@ void main() {
         field: 'column_field_name',
         type: PlutoColumnType.text(),
         enableContextMenu: false,
+        enableSorting: false,
         enableDropToResize: true,
       );
 
@@ -308,6 +309,36 @@ void main() {
       // then
       expect(found, findsOneWidget);
       expect(foundWidget.icon, configuration.style.columnResizeIcon);
+    },
+  );
+
+  testWidgets(
+    'If enableContextMenu is false and enableSorting is true'
+        'and enableDropToResize is true, then columnSortIcon should be output.',
+        (WidgetTester tester) async {
+      // given
+      final PlutoColumn column = PlutoColumn(
+        title: 'column title',
+        field: 'column_field_name',
+        type: PlutoColumnType.text(),
+        enableContextMenu: false,
+        enableSorting: true,
+        enableDropToResize: true,
+      );
+
+      // when
+      await tester.pumpWidget(
+        buildApp(column: column),
+      );
+
+      // then
+      final found = find.byType(PlutoGridColumnIcon);
+
+      final foundWidget = found.evaluate().first.widget as PlutoGridColumnIcon;
+
+      // then
+      expect(found, findsOneWidget);
+      expect(foundWidget.icon, configuration.style.columnSortIcon);
     },
   );
 
