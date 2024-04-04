@@ -4,6 +4,12 @@ import 'package:pluto_grid_plus/pluto_grid_plus.dart';
 
 import 'ui.dart';
 
+enum PlutoBaseRowAlignmentType {
+  leftFrozen,
+  body,
+  rightFrozen,
+}
+
 class PlutoBaseRow extends StatelessWidget {
   final int rowIdx;
 
@@ -13,14 +19,21 @@ class PlutoBaseRow extends StatelessWidget {
 
   final PlutoGridStateManager stateManager;
 
-  final bool visibilityLayout;
+  /// If [PlutoBaseRowAlignmentType.body], the layout is handled by [PlutoVisibilityLayout]
+  /// with a scroll controller.
+  /// If [PlutoBaseRowAlignmentType.leftFrozen] or [PlutoBaseRowAlignmentType.rightFrozen],
+  /// the layout is handled by [CustomMultiChildLayout]
+  /// without a scroll controller.
+  ///
+  /// This also manipulates the row border radius.
+  final PlutoBaseRowAlignmentType plutoBaseRowAlignmentType;
 
   const PlutoBaseRow({
     required this.rowIdx,
     required this.row,
     required this.columns,
     required this.stateManager,
-    this.visibilityLayout = false,
+    required this.plutoBaseRowAlignmentType,
     super.key,
   });
 
@@ -84,7 +97,8 @@ class PlutoBaseRow extends StatelessWidget {
       enableRowColorAnimation:
           stateManager.configuration.style.enableRowColorAnimation,
       key: ValueKey('rowContainer_${row.key}'),
-      child: visibilityLayout
+      plutoBaseRowAlignmentType: plutoBaseRowAlignmentType,
+      child: plutoBaseRowAlignmentType == PlutoBaseRowAlignmentType.body
           ? PlutoVisibilityLayout(
               key: ValueKey('rowContainer_${row.key}_row'),
               delegate: _RowCellsLayoutDelegate(
@@ -110,15 +124,10 @@ class PlutoBaseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return ClipRRect(
-      borderRadius: stateManager.style.gridBorderRadius.resolve(
-        stateManager.textDirection,
-      ),
-      child: DragTarget<PlutoRow>(
-        onWillAccept: _handleOnWillAccept,
-        onAccept: _handleOnAccept,
-        builder: _dragTargetBuilder,
-      ),
+    return DragTarget<PlutoRow>(
+      onWillAccept: _handleOnWillAccept,
+      onAccept: _handleOnAccept,
+      builder: _dragTargetBuilder,
     );
   }
 }
@@ -189,6 +198,9 @@ class _RowContainerWidget extends PlutoStatefulWidget {
 
   final bool enableRowColorAnimation;
 
+  /// Used to manipulate the row border radius.
+  final PlutoBaseRowAlignmentType plutoBaseRowAlignmentType;
+
   final Widget child;
 
   const _RowContainerWidget({
@@ -196,6 +208,7 @@ class _RowContainerWidget extends PlutoStatefulWidget {
     required this.rowIdx,
     required this.row,
     required this.enableRowColorAnimation,
+    required this.plutoBaseRowAlignmentType,
     required this.child,
     super.key,
   });
@@ -211,7 +224,11 @@ class _RowContainerWidgetState extends PlutoStateWithChange<_RowContainerWidget>
   @override
   PlutoGridStateManager get stateManager => widget.stateManager;
 
-  BoxDecoration _decoration = const BoxDecoration();
+  PlutoBaseRowAlignmentType get plutoBaseRowAlignmentType =>
+      widget.plutoBaseRowAlignmentType;
+
+  BoxDecoration _borderDecoration = const BoxDecoration();
+  BoxDecoration _backgroundColorDecoration = const BoxDecoration();
 
   Color get _oddRowColor => stateManager.configuration.style.oddRowColor == null
       ? stateManager.configuration.style.rowColor
@@ -231,9 +248,13 @@ class _RowContainerWidgetState extends PlutoStateWithChange<_RowContainerWidget>
 
   @override
   void updateState(PlutoNotifierEvent event) {
-    _decoration = update<BoxDecoration>(
-      _decoration,
-      _getBoxDecoration(),
+    _borderDecoration = update<BoxDecoration>(
+      _borderDecoration,
+      _getBorderBoxDecoration(),
+    );
+    _backgroundColorDecoration = update<BoxDecoration>(
+      _backgroundColorDecoration,
+      _getBackgroundColorBoxDecoration(),
     );
 
     setKeepAlive(stateManager.isSelecting &&
@@ -283,22 +304,8 @@ class _RowContainerWidgetState extends PlutoStateWithChange<_RowContainerWidget>
         : color;
   }
 
-  BoxDecoration _getBoxDecoration() {
-    final bool isCurrentRow = stateManager.currentRowIdx == widget.rowIdx;
-
-    final bool isSelecting = stateManager.isSelecting;
-
-    final bool isCheckedRow = widget.row.checked == true;
-
-    final alreadyTarget = stateManager.dragRows
-            .firstWhereOrNull((element) => element.key == widget.row.key) !=
-        null;
-
+  BoxDecoration _getBorderBoxDecoration() {
     final isDraggingRow = stateManager.isDraggingRow;
-
-    final bool isDragTarget = isDraggingRow &&
-        !alreadyTarget &&
-        stateManager.isRowIdxDragTarget(widget.rowIdx);
 
     final bool isTopDragTarget =
         isDraggingRow && stateManager.isRowIdxTopDragTarget(widget.rowIdx);
@@ -306,21 +313,7 @@ class _RowContainerWidgetState extends PlutoStateWithChange<_RowContainerWidget>
     final bool isBottomDragTarget =
         isDraggingRow && stateManager.isRowIdxBottomDragTarget(widget.rowIdx);
 
-    final bool hasCurrentSelectingPosition =
-        stateManager.hasCurrentSelectingPosition;
-
-    final bool isFocusedCurrentRow = isCurrentRow && stateManager.hasFocus;
-
-    final Color rowColor = _getRowColor(
-      isDragTarget: isDragTarget,
-      isFocusedCurrentRow: isFocusedCurrentRow,
-      isSelecting: isSelecting,
-      hasCurrentSelectingPosition: hasCurrentSelectingPosition,
-      isCheckedRow: isCheckedRow,
-    );
-
     return BoxDecoration(
-      color: rowColor,
       border: Border(
         top: isTopDragTarget
             ? BorderSide(
@@ -343,13 +336,68 @@ class _RowContainerWidgetState extends PlutoStateWithChange<_RowContainerWidget>
     );
   }
 
+  BoxDecoration _getBackgroundColorBoxDecoration() {
+    final bool isCurrentRow = stateManager.currentRowIdx == widget.rowIdx;
+
+    final bool isSelecting = stateManager.isSelecting;
+
+    final bool isCheckedRow = widget.row.checked == true;
+
+    final alreadyTarget = stateManager.dragRows
+        .firstWhereOrNull((element) => element.key == widget.row.key) !=
+        null;
+
+    final isDraggingRow = stateManager.isDraggingRow;
+
+    final bool isDragTarget = isDraggingRow &&
+        !alreadyTarget &&
+        stateManager.isRowIdxDragTarget(widget.rowIdx);
+
+    final bool hasCurrentSelectingPosition =
+        stateManager.hasCurrentSelectingPosition;
+
+    final bool isFocusedCurrentRow = isCurrentRow && stateManager.hasFocus;
+
+    final Color rowColor = _getRowColor(
+      isDragTarget: isDragTarget,
+      isFocusedCurrentRow: isFocusedCurrentRow,
+      isSelecting: isSelecting,
+      hasCurrentSelectingPosition: hasCurrentSelectingPosition,
+      isCheckedRow: isCheckedRow,
+    );
+
+    bool isLeftFrozen =
+        plutoBaseRowAlignmentType == PlutoBaseRowAlignmentType.leftFrozen;
+    bool isRightFrozen =
+        plutoBaseRowAlignmentType == PlutoBaseRowAlignmentType.rightFrozen;
+    bool isBody = plutoBaseRowAlignmentType == PlutoBaseRowAlignmentType.body;
+
+    BorderRadius? rowBorderRadius =
+    stateManager.style.rowBorderRadius.resolve(stateManager.textDirection);
+
+    rowBorderRadius = isBody
+        ? null
+        : rowBorderRadius.copyWith(
+      topLeft: isRightFrozen ? Radius.zero : rowBorderRadius.topLeft,
+      bottomLeft: isRightFrozen ? Radius.zero : rowBorderRadius.bottomLeft,
+      topRight: isLeftFrozen ? Radius.zero : rowBorderRadius.topRight,
+      bottomRight: isLeftFrozen ? Radius.zero : rowBorderRadius.bottomRight,
+    );
+
+    return BoxDecoration(
+      color: rowColor,
+      borderRadius: rowBorderRadius,
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     super.build(context);
 
     return _AnimatedOrNormalContainer(
       enable: widget.enableRowColorAnimation,
-      decoration: _decoration,
+      borderDecoration: _borderDecoration,
+      backgroundColorDecoration: _backgroundColorDecoration,
       child: widget.child,
     );
   }
@@ -360,12 +408,14 @@ class _AnimatedOrNormalContainer extends StatelessWidget {
 
   final Widget child;
 
-  final BoxDecoration decoration;
+  final BoxDecoration borderDecoration;
+  final BoxDecoration backgroundColorDecoration;
 
   const _AnimatedOrNormalContainer({
     required this.enable,
     required this.child,
-    required this.decoration,
+    required this.borderDecoration,
+    required this.backgroundColorDecoration,
   });
 
   @override
@@ -373,9 +423,20 @@ class _AnimatedOrNormalContainer extends StatelessWidget {
     return enable
         ? AnimatedContainer(
             duration: const Duration(milliseconds: 300),
-            decoration: decoration,
-            child: child,
+            foregroundDecoration: borderDecoration,
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 300),
+              decoration: backgroundColorDecoration,
+              child: child,
+            ),
           )
-        : DecoratedBox(decoration: decoration, child: child);
+        : DecoratedBox(
+            decoration: borderDecoration,
+            position: DecorationPosition.foreground,
+            child: DecoratedBox(
+              decoration: backgroundColorDecoration,
+              child: child,
+            ),
+          );
   }
 }

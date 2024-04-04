@@ -66,6 +66,7 @@ class PlutoLeftFrozenRowsState
           row: _rows[i],
           columns: _columns,
           stateManager: stateManager,
+          plutoBaseRowAlignmentType: PlutoBaseRowAlignmentType.leftFrozen,
         );
       },
     );
