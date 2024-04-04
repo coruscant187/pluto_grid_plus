@@ -110,10 +110,15 @@ class PlutoBaseRow extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return DragTarget<PlutoRow>(
-      onWillAccept: _handleOnWillAccept,
-      onAccept: _handleOnAccept,
-      builder: _dragTargetBuilder,
+    return ClipRRect(
+      borderRadius: stateManager.style.gridBorderRadius.resolve(
+        stateManager.textDirection,
+      ),
+      child: DragTarget<PlutoRow>(
+        onWillAccept: _handleOnWillAccept,
+        onAccept: _handleOnAccept,
+        builder: _dragTargetBuilder,
+      ),
     );
   }
 }
